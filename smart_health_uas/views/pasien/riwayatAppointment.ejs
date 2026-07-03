@@ -1,0 +1,120 @@
+<div class="card">
+  <div class="card-header"><h3>Riwayat Appointment (<%= appointments.length %>)</h3></div>
+
+  <% if (appointments.length === 0) { %>
+    <div class="empty-state">
+      <div class="empty-state-icon">&#128338;</div>
+      <p>Anda belum memiliki riwayat appointment.</p>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Dokter</th><th>Jadwal</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody>
+          <% appointments.forEach(a => { %>
+            <tr>
+              <td><%= a.doctor.user.username %></td>
+              <td><%= new Date(a.schedule).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) %></td>
+              <td><span class="badge badge-<%= a.status.toLowerCase() %>"><%= a.status %></span></td>
+              <td>
+                <% if (a.status === 'PENDING') { %>
+                  <button class="btn btn-danger btn-sm" onclick="batalkan(<%= a.id %>)">Batalkan</button>
+                <% } else if (a.status === 'SELESAI' && !a.rating) { %>
+                  <button class="btn btn-outline btn-sm" onclick="bukaRating(<%= a.id %>)">Beri Rating</button>
+                <% } else if (a.rating) { %>
+                  <span style="color: var(--color-amber); font-weight:600; font-size: 0.85rem;">&#9733; <%= a.rating.bintang %>/5 diberikan</span>
+                <% } else { %>
+                  <span style="color: var(--color-text-muted); font-size: 0.82rem;">-</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<div id="modalRating" class="modal-overlay">
+  <div class="modal-box">
+    <h3 style="margin-bottom: 16px;">Beri Rating untuk Dokter</h3>
+    <form id="formRating">
+      <input type="hidden" name="appointmentId" id="ratingAppointmentId">
+      <div class="form-group">
+        <label class="form-label">Rating</label>
+        <div class="star-rating" id="starRating">
+          <span class="star" data-value="1">&#9733;</span>
+          <span class="star" data-value="2">&#9733;</span>
+          <span class="star" data-value="3">&#9733;</span>
+          <span class="star" data-value="4">&#9733;</span>
+          <span class="star" data-value="5">&#9733;</span>
+        </div>
+        <input type="hidden" name="bintang" id="inputBintang" value="0" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Komentar (opsional)</label>
+        <textarea name="komentar" class="form-textarea" placeholder="Bagaimana pengalaman Anda?"></textarea>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button type="button" class="btn btn-outline btn-block" onclick="document.getElementById('modalRating').style.display='none'">Batal</button>
+        <button type="submit" class="btn btn-primary btn-block">Kirim Rating</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.modal-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15,76,76,0.45); align-items: center; justify-content: center; z-index: 100; }
+.modal-box { background: white; border-radius: var(--radius-md); padding: 28px; width: 100%; max-width: 420px; }
+</style>
+
+<script>
+function bukaRating(appointmentId) {
+  document.getElementById('ratingAppointmentId').value = appointmentId;
+  document.getElementById('inputBintang').value = 0;
+  document.querySelectorAll('.star').forEach(s => s.classList.remove('is-filled'));
+  document.getElementById('modalRating').style.display = 'flex';
+}
+
+document.querySelectorAll('.star').forEach(star => {
+  star.addEventListener('click', () => {
+    const value = Number(star.dataset.value);
+    document.getElementById('inputBintang').value = value;
+    document.querySelectorAll('.star').forEach(s => {
+      s.classList.toggle('is-filled', Number(s.dataset.value) <= value);
+    });
+  });
+});
+
+document.getElementById('formRating').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  if (Number(data.bintang) < 1) { alert('Silakan pilih jumlah bintang.'); return; }
+
+  const res = await fetch('/api/ratings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const result = await res.json();
+
+  if (res.ok) {
+    alert('Terima kasih atas rating Anda!');
+    location.reload();
+  } else {
+    alert(result.message || 'Gagal mengirim rating.');
+  }
+});
+
+async function batalkan(id) {
+  if (!confirm('Yakin ingin membatalkan appointment ini?')) return;
+  const res = await fetch(`/api/appointments/${id}/status`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'DIBATALKAN' })
+  });
+  if (res.ok) { location.reload(); } else {
+    const r = await res.json(); alert(r.message || 'Gagal membatalkan.');
+  }
+}
+</script>

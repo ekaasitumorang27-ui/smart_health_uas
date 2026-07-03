@@ -1,0 +1,111 @@
+<div class="card" style="max-width: 640px;">
+  <div class="card-header">
+    <h3>Isi Rekam Medis</h3>
+  </div>
+
+  <div style="background: var(--color-primary-soft); padding: 14px 16px; border-radius: var(--radius-sm); margin-bottom: 22px;">
+    <strong><%= appointment.user.username %></strong><br>
+    <span style="font-size: 0.85rem; color: var(--color-text-muted);">
+      <%= appointment.user.email %> &middot; Jadwal: <%= new Date(appointment.schedule).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) %>
+    </span>
+    <% if (appointment.keluhan) { %>
+      <p style="margin-top:8px; font-size: 0.88rem;">Keluhan awal: "<%= appointment.keluhan %>"</p>
+    <% } %>
+  </div>
+
+  <form id="formRekamMedis">
+    <input type="hidden" name="userId" value="<%= appointment.userId %>">
+    <input type="hidden" name="appointmentId" value="<%= appointment.id %>">
+
+    <div class="form-group">
+      <label class="form-label">Diagnosis</label>
+      <input type="text" name="diagnosis" id="inputDiagnosis" class="form-input" placeholder="cth: Demam, Gatal pada kulit, dst" required>
+      <div class="form-hint" id="rekomendasiHint"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Catatan Medis (opsional)</label>
+      <textarea name="notes" class="form-textarea" placeholder="Catatan tambahan dari pemeriksaan..."></textarea>
+    </div>
+
+    <h4 style="font-size: 0.95rem; margin: 22px 0 12px;">Resep Obat (opsional)</h4>
+    <div id="resepList"></div>
+    <button type="button" class="btn btn-outline btn-sm" onclick="tambahBarisResep()">+ Tambah Obat</button>
+
+    <div style="margin-top: 26px;">
+      <button type="submit" class="btn btn-primary btn-block">Simpan Rekam Medis</button>
+    </div>
+  </form>
+</div>
+
+<template id="resepRowTemplate">
+  <div class="resep-row" style="display:grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 8px; margin-bottom: 10px;">
+    <input type="text" class="form-input resep-nama" placeholder="Nama obat">
+    <input type="text" class="form-input resep-dosis" placeholder="Dosis (cth: 3x1)">
+    <input type="text" class="form-input resep-durasi" placeholder="Durasi (cth: 5 hari)">
+    <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.resep-row').remove()">Hapus</button>
+  </div>
+</template>
+
+<script>
+document.getElementById('inputDiagnosis').addEventListener('blur', async (e) => {
+  // Tampilkan preview rekomendasi spesialis secara lokal (sederhana, mencerminkan logika backend)
+  const d = e.target.value.toLowerCase();
+  let rekomendasi = 'Dokter Umum (cek lebih lanjut)';
+  if (d.includes('demam') || d.includes('flu') || d.includes('batuk')) rekomendasi = 'Dokter Umum';
+  else if (d.includes('jantung') || d.includes('tekanan darah')) rekomendasi = 'Dokter Spesialis Jantung';
+  else if (d.includes('kulit') || d.includes('gatal') || d.includes('jerawat')) rekomendasi = 'Dokter Kulit';
+  else if (d.includes('mata') || d.includes('penglihatan')) rekomendasi = 'Dokter Mata';
+
+  document.getElementById('rekomendasiHint').textContent = d ? `Rekomendasi sistem: ${rekomendasi}` : '';
+});
+
+function tambahBarisResep() {
+  const template = document.getElementById('resepRowTemplate');
+  const clone = template.content.cloneNode(true);
+  document.getElementById('resepList').appendChild(clone);
+}
+
+document.getElementById('formRekamMedis').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const data = {
+    userId: form.userId.value,
+    appointmentId: form.appointmentId.value,
+    diagnosis: form.diagnosis.value,
+    notes: form.notes.value
+  };
+
+  const res = await fetch('/api/health-records', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const result = await res.json();
+
+  if (!res.ok) {
+    alert(result.message || 'Gagal menyimpan rekam medis.');
+    return;
+  }
+
+  const healthRecordId = result.record.id;
+
+  // Simpan tiap baris resep
+  const rows = document.querySelectorAll('.resep-row');
+  for (const row of rows) {
+    const namaObat = row.querySelector('.resep-nama').value;
+    const dosis = row.querySelector('.resep-dosis').value;
+    const durasi = row.querySelector('.resep-durasi').value;
+    if (!namaObat) continue;
+
+    await fetch('/api/prescriptions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ healthRecordId, namaObat, dosis, durasi })
+    });
+  }
+
+  alert(`Rekam medis berhasil disimpan!\nRekomendasi sistem: ${result.recommendation}`);
+  window.location.href = '/dokter/dashboard';
+});
+</script>

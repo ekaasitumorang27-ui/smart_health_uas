@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// =======================================================
+// ENUM
+// =======================================================
+enum Role {
+  ADMIN
+  DOKTER
+  PASIEN
+}
+
+enum StatusAppointment {
+  PENDING
+  DIKONFIRMASI
+  SELESAI
+  DIBATALKAN
+}
+
+// =======================================================
+// USER (akun login untuk semua role)
+// =======================================================
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String
+  email     String   @unique
+  password  String
+  role      Role     @default(PASIEN)
+  createdAt DateTime @default(now())
+
+  // relasi: kalau role = DOKTER, terhubung ke profil Doctor
+  doctorProfile Doctor?
+
+  // relasi: kalau role = PASIEN
+  appointments  Appointment[]
+  healthRecords HealthRecord[]
+  ratings       Rating[]
+}
+
+// =======================================================
+// DOCTOR (profil tambahan untuk user berrole DOKTER)
+// =======================================================
+model Doctor {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialist    String
+  schedules     Schedule[]
+  appointments  Appointment[]
+  healthRecords HealthRecord[]
+  prescriptions Prescription[]
+  ratings       Rating[]
+}
+
+// =======================================================
+// SCHEDULE (jadwal praktik dokter)
+// =======================================================
+model Schedule {
+  id        Int    @id @default(autoincrement())
+  doctorId  Int
+  doctor    Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  dayOfWeek String // "Senin", "Selasa", dst
+  startTime String // "08:00"
+  endTime   String // "12:00"
+}
+
+// =======================================================
+// APPOINTMENT (reservasi)
+// =======================================================
+model Appointment {
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctorId  Int
+  doctor    Doctor            @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  schedule  DateTime
+  status    StatusAppointment @default(PENDING)
+  keluhan   String?
+  createdAt DateTime          @default(now())
+
+  healthRecord HealthRecord?
+  rating       Rating?
+}
+
+// =======================================================
+// HEALTH RECORD (rekam medis, diisi dokter)
+// =======================================================
+model HealthRecord {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctorId      Int
+  doctor        Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  appointmentId Int?     @unique
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
+  diagnosis     String
+  notes         String?  @db.Text
+  date          DateTime @default(now())
+
+  prescriptions Prescription[]
+}
+
+// =======================================================
+// PRESCRIPTION (resep obat digital)
+// =======================================================
+model Prescription {
+  id             Int          @id @default(autoincrement())
+  healthRecordId Int
+  healthRecord   HealthRecord @relation(fields: [healthRecordId], references: [id], onDelete: Cascade)
+  doctorId       Int
+  doctor         Doctor       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  namaObat       String
+  dosis          String
+  durasi         String
+  catatan        String?
+  createdAt      DateTime     @default(now())
+}
+
+// =======================================================
+// RATING (ulasan pasien terhadap dokter, per appointment selesai)
+// =======================================================
+model Rating {
+  id            Int         @id @default(autoincrement())
+  appointmentId Int         @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  userId        Int
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctorId      Int
+  doctor        Doctor      @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  bintang       Int // 1-5
+  komentar      String?
+  createdAt     DateTime    @default(now())
+}

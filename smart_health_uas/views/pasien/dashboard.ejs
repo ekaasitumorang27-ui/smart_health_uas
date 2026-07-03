@@ -1,0 +1,40 @@
+<div class="grid-row grid-2">
+  <div class="card" style="display:flex; flex-direction: column; align-items: flex-start; justify-content: center; background: var(--color-primary); color: white;">
+    <h3 style="color: white; margin-bottom: 8px;">Butuh konsultasi dokter?</h3>
+    <p style="color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 18px;">Cari dokter sesuai kebutuhan Anda dan pesan jadwal dalam hitungan menit.</p>
+    <a href="/pasien/booking" class="btn" style="background: var(--color-amber); color: var(--color-primary);">Buat Appointment Baru</a>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom: 14px;">Ringkasan</h3>
+    <p style="font-size: 0.9rem; color: var(--color-text-muted);">
+      Anda memiliki <strong style="color: var(--color-primary);"><%= appointments.length %></strong> appointment terbaru.
+      Lihat riwayat lengkap dan rekam medis Anda melalui menu di samping.
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>Appointment Terbaru</h3></div>
+
+  <% if (appointments.length === 0) { %>
+    <div class="empty-state">
+      <div class="empty-state-icon">&#128197;</div>
+      <p>Anda belum memiliki appointment. <a href="/pasien/booking" style="color: var(--color-primary); font-weight:600;">Buat sekarang</a></p>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Dokter</th><th>Jadwal</th><th>Status</th></tr></thead>
+        <tbody>
+          <% appointments.forEach(a => { %>
+            <tr>
+              <td><%= a.doctor.user.username %></td>
+              <td><%= new Date(a.schedule).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) %></td>
+              <td><span class="badge badge-<%= a.status.toLowerCase() %>"><%= a.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

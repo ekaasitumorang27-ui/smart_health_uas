@@ -1,0 +1,35 @@
+<div class="card">
+  <div class="card-header">
+    <h3>Daftar Pasien (<%= pasien.length %>)</h3>
+  </div>
+
+  <% if (pasien.length === 0) { %>
+    <div class="empty-state">
+      <div class="empty-state-icon">&#128100;</div>
+      <p>Belum ada pasien yang terdaftar.</p>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Email</th>
+            <th>Total Appointment</th>
+            <th>Total Rekam Medis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% pasien.forEach(p => { %>
+            <tr>
+              <td><strong><%= p.username %></strong></td>
+              <td><%= p.email %></td>
+              <td><%= p.appointments.length %></td>
+              <td><%= p.healthRecords.length %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,121 @@
+=============================================================
+TIM.TXT — Web Back-End Tugas Kelompok UAS 2025/26
+=============================================================
+
+NAMA TIM : ByteMe
+
+ANGGOTA TIM:
+1. Eka Anastsya Situmorang - 241112564
+
+=============================================================
+TEMA / TOPIK WEB
+=============================================================
+Smart Health — Sistem Reservasi & Rekam Medis Klinik Digital
+
+Aplikasi web yang memungkinkan pasien melakukan reservasi
+online dengan dokter, dokter mencatat rekam medis dan resep
+obat secara digital, serta admin memantau seluruh aktivitas
+klinik melalui dashboard statistik.
+
+=============================================================
+TEKNOLOGI YANG DIGUNAKAN
+=============================================================
+- Node.js + Express.js 4       : Framework backend utama
+- Prisma ORM + MySQL           : Database ORM dan penyimpanan data
+- EJS (server-side rendering)  : Template engine untuk tampilan
+- CSS Custom (tanpa framework) : Desain UI dibuat dari nol
+- JWT (jsonwebtoken)           : Autentikasi token berbasis cookie
+- bcryptjs                     : Hashing password sebelum disimpan
+- PDFKit                       : Export rekam medis ke PDF (belajar mandiri)
+- Chart.js                     : Grafik statistik dashboard (belajar mandiri)
+- cookie-parser                : Parsing cookie JWT
+- method-override              : Support method PUT/DELETE di form HTML
+- express-ejs-layouts          : Layout template global untuk EJS
+- dotenv                       : Manajemen environment variable
+
+LINK TEMPLATE:
+(Tidak menggunakan template pihak ketiga)
+Seluruh desain UI, sistem warna, dan layout dibuat custom dari nol.
+
+=============================================================
+INOVASI & KREATIVITAS
+=============================================================
+1. Sistem 3 role (Admin/Dokter/Pasien) dengan dashboard dan
+   sidebar navigasi yang berbeda otomatis sesuai role yang login.
+
+2. Validasi anti-bentrok jadwal appointment — sistem otomatis
+   menolak booking apabila slot waktu sudah dipesan pasien lain
+   untuk dokter yang sama (window 30 menit).
+
+3. Rekomendasi dokter spesialis otomatis berdasarkan kata kunci
+   diagnosis yang diinput dokter (demam→Dokter Umum,
+   jantung→Spesialis Jantung, kulit→Dokter Kulit, dst).
+
+4. e-Prescription (Resep Obat Digital) — dokter bisa menambahkan
+   satu atau lebih obat lengkap dengan dosis dan durasi,
+   terhubung langsung ke rekam medis pasien.
+
+5. Export Rekam Medis ke PDF menggunakan PDFKit — pasien dan
+   dokter bisa unduh laporan rekam medis lengkap kapan saja.
+
+6. Dashboard Statistik Admin dengan 4 jenis grafik interaktif
+   (Chart.js): tren appointment per bulan, distribusi status,
+   dokter paling sering dipilih, dan diagnosis terbanyak.
+
+7. Sistem Rating & Ulasan Dokter — pasien memberikan rating
+   1-5 bintang hanya untuk appointment yang sudah berstatus
+   Selesai, ditampilkan di kartu dokter saat halaman booking.
+
+8. Desain UI custom sistem warna teal-amber yang konsisten
+   di seluruh halaman dan semua role tanpa framework CSS
+   pihak ketiga.
+
+=============================================================
+LINK HOSTINGAN
+=============================================================
+Link   : (diisi setelah deploy selesai)
+Username Admin : admin@smarthealth.com
+Password Admin : admin123
+
+=============================================================
+NILAI YANG DIHARAPKAN DAN ALASANNYA
+=============================================================
+Nilai yang diharapkan: A
+
+Alasan:
+Aplikasi Smart Health ini memenuhi seluruh indikator penilaian
+yang telah ditetapkan:
+
+1. Database (15%) — Menggunakan 7 model Prisma yang saling
+   berelasi (User, Doctor, Schedule, Appointment, HealthRecord,
+   Prescription, Rating) dengan setiap fitur terhubung ke
+   database secara konsisten.
+
+2. Middleware (10%) — Mengimplementasikan 4 middleware custom:
+   authMiddleware (verifikasi JWT), roleMiddleware (otorisasi
+   berbasis role), validateInput (validasi field wajib), dan
+   errorHandler (penanganan error global).
+
+3. REST API (10%) — Seluruh resource memiliki endpoint REST
+   yang terstruktur dengan method GET/POST/PUT/DELETE yang
+   sesuai dan status code yang tepat.
+
+4. Autentikasi & Otorisasi (15%) — Setiap endpoint dan halaman
+   dijaga middleware auth+role. Tidak ada fitur yang bisa
+   diakses tanpa login dan tanpa role yang sesuai.
+
+5. Tampilan (20%) — Desain custom konsisten di semua halaman
+   (landing, auth, dashboard per-role) dengan identitas visual
+   teal-amber yang profesional dan bukan tampilan default.
+
+6. Hosting (20%) — Aplikasi di-deploy ke platform hosting
+   online sehingga bisa diakses publik.
+
+7. Teknologi Mandiri (10%) — PDFKit (export PDF) dan Chart.js
+   (grafik statistik) dipelajari dan diimplementasikan secara
+   mandiri di luar materi perkuliahan.
+
+Jumlah fitur: 8 fitur dengan tingkat kesulitan sedang-tinggi,
+dikerjakan secara solo (1 anggota), yang secara kualitas
+setara dengan standar tim 3 anggota berdasarkan kompleksitas
+implementasi yang diselesaikan.

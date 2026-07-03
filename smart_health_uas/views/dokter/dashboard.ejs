@@ -1,0 +1,61 @@
+<div class="card">
+  <div class="card-header">
+    <h3>Antrian Appointment Anda (<%= appointments.length %>)</h3>
+  </div>
+
+  <% if (appointments.length === 0) { %>
+    <div class="empty-state">
+      <div class="empty-state-icon">&#128197;</div>
+      <p>Belum ada appointment yang masuk untuk Anda.</p>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Pasien</th>
+            <th>Jadwal</th>
+            <th>Keluhan</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% appointments.forEach(a => { %>
+            <tr>
+              <td><strong><%= a.user.username %></strong><br><span style="font-size:0.8rem; color: var(--color-text-muted);"><%= a.user.email %></span></td>
+              <td><%= new Date(a.schedule).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) %></td>
+              <td><%= a.keluhan || '-' %></td>
+              <td><span class="badge badge-<%= a.status.toLowerCase() %>"><%= a.status %></span></td>
+              <td>
+                <% if (a.status === 'PENDING') { %>
+                  <button class="btn btn-outline btn-sm" onclick="ubahStatus(<%= a.id %>, 'DIKONFIRMASI')">Konfirmasi</button>
+                <% } else if (a.status === 'DIKONFIRMASI') { %>
+                  <a href="/dokter/rekam-medis/<%= a.id %>" class="btn btn-primary btn-sm">Isi Rekam Medis</a>
+                <% } else { %>
+                  <span style="color: var(--color-text-muted); font-size: 0.82rem;">Tidak ada aksi</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<script>
+async function ubahStatus(id, status) {
+  const res = await fetch(`/api/appointments/${id}/status`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  });
+  if (res.ok) {
+    location.reload();
+  } else {
+    const result = await res.json();
+    alert(result.message || 'Gagal mengubah status.');
+  }
+}
+</script>

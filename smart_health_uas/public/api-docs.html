@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dokumentasi API | Smart Health</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0F4C4C;
+      --primary-light: #1A7A6E;
+      --primary-soft: #E3EFEC;
+      --bg: #F7F5F0;
+      --surface: #FFFFFF;
+      --text: #2D3436;
+      --text-muted: #6B7472;
+      --border: #E4E1D8;
+      --amber: #E8B84B;
+      --danger: #C24A3D;
+      --danger-soft: #F8E5E2;
+      --success: #2E8B57;
+      --success-soft: #E3F1E8;
+      --method-get: #1A7A6E;
+      --method-post: #2E6BB0;
+      --method-put: #E8A020;
+      --method-delete: #C24A3D;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* NAV */
+    .nav {
+      background: var(--primary);
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand { font-family: 'Outfit', sans-serif; color: white; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+    .nav-brand-icon { color: var(--amber); }
+    .nav-badge { background: var(--amber); color: var(--primary); font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .nav-back { color: rgba(255,255,255,0.75); font-size: 0.88rem; text-decoration: none; }
+    .nav-back:hover { color: white; }
+
+    /* LAYOUT */
+    .container { max-width: 960px; margin: 0 auto; padding: 48px 24px 80px; }
+    .page-title { font-family: 'Outfit', sans-serif; font-size: 2rem; color: var(--primary); margin-bottom: 8px; }
+    .page-desc { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 40px; line-height: 1.6; }
+
+    /* BASE URL BOX */
+    .base-url-box {
+      background: var(--primary);
+      color: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .base-url-label { font-size: 0.8rem; opacity: 0.7; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+    .base-url-value { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--amber); }
+
+    /* AUTH NOTE */
+    .auth-note {
+      background: var(--amber-soft, #FBF1DC);
+      border: 1px solid var(--amber);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 40px;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+    .auth-note strong { color: var(--primary); }
+
+    /* SECTION */
+    .section { margin-bottom: 48px; }
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary-soft);
+    }
+
+    /* ENDPOINT CARD */
+    .endpoint {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+    }
+    .method {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: white;
+      min-width: 62px;
+      text-align: center;
+    }
+    .method.GET { background: var(--method-get); }
+    .method.POST { background: var(--method-post); }
+    .method.PUT { background: var(--method-put); }
+    .method.DELETE { background: var(--method-delete); }
+
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    .endpoint-desc { color: var(--text-muted); font-size: 0.85rem; margin-left: auto; }
+    .endpoint-body { padding: 0 20px 16px; border-top: 1px solid var(--border); }
+    .endpoint-body table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .endpoint-body th { text-align: left; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 10px 0 6px; }
+    .endpoint-body td { padding: 6px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .endpoint-body td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--primary-light); width: 130px; }
+    .endpoint-body td:nth-child(2) { color: var(--text-muted); font-size: 0.8rem; width: 80px; }
+
+    .role-tag {
+      display: inline-flex; font-size: 0.72rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px; background: var(--primary-soft); color: var(--primary);
+      margin-left: auto;
+    }
+    .role-tag.ADMIN { background: #FBF1DC; color: #8A6D1D; }
+    .role-tag.DOKTER { background: var(--success-soft); color: var(--success); }
+    .role-tag.PASIEN { background: #E8EEFF; color: #2E4BB0; }
+    .role-tag.PUBLIC { background: var(--border); color: var(--text-muted); }
+
+    .response-example {
+      background: #1E2A2A;
+      color: #A8D8C8;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 10px;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+
+    /* FOOTER */
+    .footer { text-align: center; color: var(--text-muted); font-size: 0.82rem; margin-top: 60px; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <span class="nav-brand-icon">&#10010;</span> SmartHealth
+    <span class="nav-badge">API v1.0</span>
+  </div>
+  <a href="/" class="nav-back">&#8592; Kembali ke Beranda</a>
+</nav>
+
+<div class="container">
+  <h1 class="page-title">Dokumentasi REST API</h1>
+  <p class="page-desc">
+    Smart Health API adalah REST API yang digunakan aplikasi Smart Health untuk mengelola
+    data reservasi klinik, rekam medis, resep obat, rating dokter, dan statistik dashboard.
+    Semua endpoint mengembalikan data dalam format JSON.
+    Dibuat oleh: <strong>Eka Anastsya Situmorang — 241112564 (Tim ByteMe)</strong>
+  </p>
+
+  <div class="base-url-box">
+    <span class="base-url-label">Base URL</span>
+    <span class="base-url-value" id="baseUrl">https://your-app.railway.app</span>
+  </div>
+
+  <div class="auth-note">
+    <strong>&#128274; Autentikasi:</strong> Semua endpoint (kecuali <code>/auth/register</code> dan <code>/auth/login</code>)
+    memerlukan token JWT yang valid. Token dikirim otomatis melalui cookie <code>httpOnly</code> setelah login berhasil.
+    Akses API langsung bisa menggunakan header <code>Authorization: Bearer &lt;token&gt;</code>.
+    Setiap endpoint juga dijaga role-based authorization sesuai keterangan di masing-masing endpoint.
+  </div>
+
+  <!-- AUTH -->
+  <div class="section">
+    <h2 class="section-title">&#128272; Autentikasi</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method POST">POST</span>
+        <span class="endpoint-path">/auth/register</span>
+        <span class="role-tag PUBLIC">PUBLIC</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>username</td><td>string</td><td>Nama pengguna</td></tr>
+          <tr><td>email</td><td>string</td><td>Email unik pengguna</td></tr>
+          <tr><td>password</td><td>string</td><td>Password min. 6 karakter, akan di-hash bcrypt</td></tr>
+          <tr><td>confirmPassword</td><td>string</td><td>Harus sama dengan password</td></tr>
+        </table>
+        <div class="response-example">// Response: redirect ke /pasien/dashboard dengan cookie JWT</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method POST">POST</span>
+        <span class="endpoint-path">/auth/login</span>
+        <span class="role-tag PUBLIC">PUBLIC</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>email</td><td>string</td><td>Email terdaftar</td></tr>
+          <tr><td>password</td><td>string</td><td>Password akun</td></tr>
+        </table>
+        <div class="response-example">// Response: redirect ke dashboard sesuai role (admin/dokter/pasien)</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/auth/logout</span>
+        <span class="role-tag PUBLIC">PUBLIC</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="response-example">// Menghapus cookie JWT dan redirect ke halaman login</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCTORS -->
+  <div class="section">
+    <h2 class="section-title">&#9879; Dokter</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/api/doctors</span>
+        <span class="role-tag">ALL ROLES</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="response-example">[{ "id": 1, "specialist": "Dokter Umum", "user": { "username": "dr. Budi", "email": "budi@..." }, "schedules": [...], "avgRating": "4.5", "jumlahRating": 3 }]</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/api/doctors/:id</span>
+        <span class="role-tag">ALL ROLES</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="response-example">{ "id": 1, "specialist": "Dokter Umum", "schedules": [...], "ratings": [...] }</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method POST">POST</span>
+        <span class="endpoint-path">/api/doctors</span>
+        <span class="role-tag ADMIN">ADMIN</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>username</td><td>string</td><td>Nama dokter</td></tr>
+          <tr><td>email</td><td>string</td><td>Email login dokter</td></tr>
+          <tr><td>password</td><td>string</td><td>Password awal</td></tr>
+          <tr><td>specialist</td><td>string</td><td>Spesialisasi dokter</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method PUT">PUT</span>
+        <span class="endpoint-path">/api/doctors/:id</span>
+        <span class="role-tag ADMIN">ADMIN</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>specialist</td><td>string</td><td>Spesialisasi baru (opsional)</td></tr>
+          <tr><td>username</td><td>string</td><td>Nama baru (opsional)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method DELETE">DELETE</span>
+        <span class="endpoint-path">/api/doctors/:id</span>
+        <span class="role-tag ADMIN">ADMIN</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="response-example">{ "message": "Dokter berhasil dihapus." }</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method POST">POST</span>
+        <span class="endpoint-path">/api/doctors/:id/schedules</span>
+        <span class="role-tag ADMIN">ADMIN / DOKTER</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>dayOfWeek</td><td>string</td><td>Hari (Senin, Selasa, dst)</td></tr>
+          <tr><td>startTime</td><td>string</td><td>Jam mulai (format HH:MM)</td></tr>
+          <tr><td>endTime</td><td>string</td><td>Jam selesai (format HH:MM)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method DELETE">DELETE</span>
+        <span class="endpoint-path">/api/doctors/schedules/:scheduleId</span>
+        <span class="role-tag ADMIN">ADMIN / DOKTER</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="response-example">{ "message": "Jadwal berhasil dihapus." }</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPOINTMENTS -->
+  <div class="section">
+    <h2 class="section-title">&#128197; Appointment</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/api/appointments</span>
+        <span class="role-tag">ALL ROLES</span>
+      </div>
+      <div class="endpoint-body">
+        <p style="font-size:0.85rem; color: var(--text-muted); padding-top: 10px;">Data otomatis difilter berdasarkan role: Pasien hanya melihat miliknya, Dokter melihat yang ditujukan kepadanya, Admin melihat semua.</p>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/api/appointments/available</span>
+        <span class="role-tag">ALL ROLES</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Query Param</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>doctorId</td><td>number</td><td>ID dokter yang dipilih</td></tr>
+          <tr><td>date</td><td>string</td><td>Tanggal (format YYYY-MM-DD)</td></tr>
+        </table>
+        <div class="response-example">{ "bookedSlots": ["2026-07-01T08:00:00.000Z", "2026-07-01T09:00:00.000Z"] }</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method POST">POST</span>
+        <span class="endpoint-path">/api/appointments</span>
+        <span class="role-tag PASIEN">PASIEN</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>doctorId</td><td>number</td><td>ID dokter yang dipilih</td></tr>
+          <tr><td>schedule</td><td>string</td><td>Tanggal & jam (ISO 8601: 2026-07-01T09:00:00)</td></tr>
+          <tr><td>keluhan</td><td>string</td><td>Keluhan awal (opsional)</td></tr>
+        </table>
+        <div class="response-example">// 409 Conflict jika slot sudah terisi (validasi anti-bentrok aktif)</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method PUT">PUT</span>
+        <span class="endpoint-path">/api/appointments/:id/status</span>
+        <span class="role-tag">ALL ROLES</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>status</td><td>string</td><td>PENDING | DIKONFIRMASI | SELESAI | DIBATALKAN</td></tr>
+        </table>
+        <div class="response-example">// Pasien hanya bisa set DIBATALKAN. Dokter/Admin bisa set semua status.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEALTH RECORDS -->
+  <div class="section">
+    <h2 class="section-title">&#128203; Rekam Medis</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/api/health-records</span>
+        <span class="role-tag">ALL ROLES</span>
+      </div>
+      <div class="endpoint-body">
+        <p style="font-size:0.85rem; color: var(--text-muted); padding-top:10px;">Otomatis difilter: Pasien hanya melihat miliknya, Dokter hanya yang dia buat, Admin melihat semua.</p>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/api/health-records/:id</span>
+        <span class="role-tag">ALL ROLES</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="response-example">{ "id": 1, "diagnosis": "Demam", "notes": "Pusing", "date": "...", "user": {...}, "doctor": {...}, "prescriptions": [...] }</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method POST">POST</span>
+        <span class="endpoint-path">/api/health-records</span>
+        <span class="role-tag DOKTER">DOKTER</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>userId</td><td>number</td><td>ID pasien</td></tr>
+          <tr><td>appointmentId</td><td>number</td><td>ID appointment terkait (opsional)</td></tr>
+          <tr><td>diagnosis</td><td>string</td><td>Diagnosis dokter</td></tr>
+          <tr><td>notes</td><td>string</td><td>Catatan medis (opsional)</td></tr>
+        </table>
+        <div class="response-example">{ "record": {...}, "recommendation": "Dokter Umum" }
+// recommendation: saran spesialis otomatis berdasarkan kata kunci diagnosis</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRESCRIPTIONS -->
+  <div class="section">
+    <h2 class="section-title">&#128138; Resep Obat</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/api/prescriptions/by-record/:healthRecordId</span>
+        <span class="role-tag">ALL ROLES</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="response-example">[{ "id": 1, "namaObat": "Paracetamol", "dosis": "3x1", "durasi": "5 hari", "catatan": null }]</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method POST">POST</span>
+        <span class="endpoint-path">/api/prescriptions</span>
+        <span class="role-tag DOKTER">DOKTER</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>healthRecordId</td><td>number</td><td>ID rekam medis terkait</td></tr>
+          <tr><td>namaObat</td><td>string</td><td>Nama obat yang diresepkan</td></tr>
+          <tr><td>dosis</td><td>string</td><td>Dosis (contoh: 3x1)</td></tr>
+          <tr><td>durasi</td><td>string</td><td>Durasi konsumsi (contoh: 5 hari)</td></tr>
+          <tr><td>catatan</td><td>string</td><td>Catatan tambahan (opsional)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method DELETE">DELETE</span>
+        <span class="endpoint-path">/api/prescriptions/:id</span>
+        <span class="role-tag DOKTER">DOKTER</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="response-example">{ "message": "Resep berhasil dihapus." }</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RATINGS -->
+  <div class="section">
+    <h2 class="section-title">&#11088; Rating Dokter</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/api/ratings/doctor/:doctorId</span>
+        <span class="role-tag">ALL ROLES</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="response-example">[{ "id": 1, "bintang": 5, "komentar": "Dokternya ramah", "user": { "username": "Eka" } }]</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method POST">POST</span>
+        <span class="endpoint-path">/api/ratings</span>
+        <span class="role-tag PASIEN">PASIEN</span>
+      </div>
+      <div class="endpoint-body">
+        <table>
+          <tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr>
+          <tr><td>appointmentId</td><td>number</td><td>ID appointment yang sudah SELESAI</td></tr>
+          <tr><td>bintang</td><td>number</td><td>Rating 1-5</td></tr>
+          <tr><td>komentar</td><td>string</td><td>Komentar (opsional)</td></tr>
+        </table>
+        <div class="response-example">// 400 jika appointment belum SELESAI atau sudah pernah diberi rating</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD & EXPORT -->
+  <div class="section">
+    <h2 class="section-title">&#9635; Dashboard & Export</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/api/dashboard/stats</span>
+        <span class="role-tag ADMIN">ADMIN</span>
+      </div>
+      <div class="endpoint-body">
+        <div class="response-example">{ "totalUsers": 24, "totalDoctors": 6, "totalAppointments": 58, "perBulan": {"2026-06": 12}, "statusCount": {"SELESAI": 45, ...}, "topDoctors": [...], "topDiagnosis": [...] }</div>
+      </div>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method GET">GET</span>
+        <span class="endpoint-path">/api/export/health-record/:id/pdf</span>
+        <span class="role-tag">ALL ROLES</span>
+      </div>
+      <div class="endpoint-body">
+        <p style="font-size:0.85rem; color: var(--text-muted); padding-top:10px;">
+          Mengembalikan file PDF rekam medis yang berisi informasi pasien, diagnosis, catatan medis, dan resep obat.
+          Header response: <code>Content-Type: application/pdf</code>, <code>Content-Disposition: attachment; filename=rekam-medis-{id}.pdf</code>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Smart Health API v1.0 — Dibuat oleh Eka Anastsya Situmorang (241112564) — Tim ByteMe<br>
+    Tugas UAS Back-End Web Development — Universitas Mikroskil
+  </div>
+</div>
+
+<script>
+  // Auto-detect base URL
+  const baseUrl = window.location.origin;
+  document.getElementById('baseUrl').textContent = baseUrl;
+</script>
+
+</body>
+</html>
