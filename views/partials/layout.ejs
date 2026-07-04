@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Smart Health</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+  <div class="app-shell">
+    <%- include('./sidebar') %>
+
+    <main class="app-main">
+      <header class="app-topbar">
+        <h1 class="app-pagetitle"><%= title %></h1>
+        <div class="app-userchip">
+          <span class="app-userchip-name"><%= currentUser.username %></span>
+          <span class="app-userchip-role"><%= currentUser.role %></span>
+        </div>
+      </header>
+
+      <div class="app-content">
+        <%- body %>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

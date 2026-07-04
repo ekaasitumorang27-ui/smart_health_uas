@@ -1,0 +1,37 @@
+<div class="card">
+  <div class="card-header">
+    <h3>Riwayat Rekam Medis yang Anda Buat (<%= records.length %>)</h3>
+  </div>
+
+  <% if (records.length === 0) { %>
+    <div class="empty-state">
+      <div class="empty-state-icon">&#128203;</div>
+      <p>Anda belum membuat rekam medis apapun.</p>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Pasien</th><th>Diagnosis</th><th>Resep</th><th>Tanggal</th><th>Aksi</th></tr>
+        </thead>
+        <tbody>
+          <% records.forEach(r => { %>
+            <tr>
+              <td><strong><%= r.user.username %></strong></td>
+              <td><%= r.diagnosis %></td>
+              <td>
+                <% if (r.prescriptions.length === 0) { %>
+                  <span style="color: var(--color-text-muted); font-size: 0.85rem;">-</span>
+                <% } else { %>
+                  <%= r.prescriptions.map(p => p.namaObat).join(', ') %>
+                <% } %>
+              </td>
+              <td><%= new Date(r.date).toLocaleDateString('id-ID', { dateStyle: 'medium' }) %></td>
+              <td><a href="/api/export/health-record/<%= r.id %>/pdf" class="btn btn-outline btn-sm" target="_blank">Unduh PDF</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

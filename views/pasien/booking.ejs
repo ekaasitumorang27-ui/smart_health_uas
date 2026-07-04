@@ -1,0 +1,105 @@
+<div class="card" style="margin-bottom: 24px;">
+  <div class="card-header"><h3>1. Pilih Dokter</h3></div>
+
+  <% if (doctors.length === 0) { %>
+    <div class="empty-state">
+      <div class="empty-state-icon">&#9879;</div>
+      <p>Belum ada dokter tersedia saat ini.</p>
+    </div>
+  <% } else { %>
+    <div class="grid-row grid-3" id="doctorGrid">
+      <% doctors.forEach(d => { %>
+        <div class="doctor-card" data-doctor-id="<%= d.id %>" onclick="pilihDokter(<%= d.id %>, '<%= d.user.username %>')">
+          <div class="doctor-card-avatar"><%= d.user.username.charAt(0).toUpperCase() %></div>
+          <div class="doctor-card-name"><%= d.user.username %></div>
+          <div class="doctor-card-specialist"><%= d.specialist %></div>
+          <% if (d.avgRating) { %>
+            <div class="doctor-card-rating">&#9733; <%= d.avgRating %> / 5</div>
+          <% } else { %>
+            <div class="doctor-card-rating" style="color: var(--color-text-muted);">Belum ada rating</div>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</div>
+
+<div class="card" id="bookingFormCard" style="display:none;">
+  <div class="card-header"><h3>2. Pilih Jadwal &mdash; <span id="selectedDoctorName"></span></h3></div>
+
+  <form id="formBooking">
+    <input type="hidden" name="doctorId" id="inputDoctorId">
+
+    <div class="grid-row grid-2">
+      <div class="form-group">
+        <label class="form-label">Tanggal</label>
+        <input type="date" name="tanggal" id="inputTanggal" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jam</label>
+        <input type="time" name="jam" id="inputJam" class="form-input" required>
+        <div class="form-hint" id="slotHint"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Keluhan (opsional)</label>
+      <textarea name="keluhan" class="form-textarea" placeholder="Jelaskan keluhan Anda secara singkat..."></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">Buat Appointment</button>
+  </form>
+</div>
+
+<script>
+function pilihDokter(id, nama) {
+  document.querySelectorAll('.doctor-card').forEach(c => c.classList.remove('is-selected'));
+  document.querySelector(`.doctor-card[data-doctor-id="${id}"]`).classList.add('is-selected');
+  document.getElementById('inputDoctorId').value = id;
+  document.getElementById('selectedDoctorName').textContent = nama;
+  document.getElementById('bookingFormCard').style.display = 'block';
+  document.getElementById('bookingFormCard').scrollIntoView({ behavior: 'smooth' });
+  cekSlot();
+}
+
+async function cekSlot() {
+  const doctorId = document.getElementById('inputDoctorId').value;
+  const tanggal = document.getElementById('inputTanggal').value;
+  if (!doctorId || !tanggal) return;
+
+  const res = await fetch(`/api/appointments/available?doctorId=${doctorId}&date=${tanggal}`);
+  const data = await res.json();
+  const jamTerisi = data.bookedSlots.map(s => new Date(s).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }));
+
+  const hint = document.getElementById('slotHint');
+  hint.textContent = jamTerisi.length > 0
+    ? `Jam yang sudah terisi: ${jamTerisi.join(', ')}`
+    : 'Belum ada jam yang terisi pada tanggal ini.';
+}
+
+document.getElementById('inputTanggal').addEventListener('change', cekSlot);
+
+document.getElementById('formBooking').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const doctorId = document.getElementById('inputDoctorId').value;
+  const tanggal = document.getElementById('inputTanggal').value;
+  const jam = document.getElementById('inputJam').value;
+  const keluhan = e.target.keluhan.value;
+
+  const schedule = `${tanggal}T${jam}:00`;
+
+  const res = await fetch('/api/appointments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ doctorId, schedule, keluhan })
+  });
+  const result = await res.json();
+
+  if (res.ok) {
+    alert('Appointment berhasil dibuat! Menunggu konfirmasi dokter.');
+    window.location.href = '/pasien/riwayat-appointment';
+  } else {
+    alert(result.message || 'Gagal membuat appointment.');
+  }
+});
+</script>

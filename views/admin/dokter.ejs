@@ -1,0 +1,180 @@
+<div class="card">
+  <div class="card-header">
+    <h3>Daftar Dokter (<%= doctors.length %>)</h3>
+    <button class="btn btn-primary btn-sm" onclick="document.getElementById('modalTambahDokter').style.display='flex'">+ Tambah Dokter</button>
+  </div>
+
+  <% if (doctors.length === 0) { %>
+    <div class="empty-state">
+      <div class="empty-state-icon">&#9879;</div>
+      <p>Belum ada dokter terdaftar. Tambahkan dokter pertama Anda.</p>
+    </div>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Email</th>
+            <th>Spesialisasi</th>
+            <th>Jadwal Praktik</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% doctors.forEach(doc => { %>
+            <tr>
+              <td><strong><%= doc.user.username %></strong></td>
+              <td><%= doc.user.email %></td>
+              <td><%= doc.specialist %></td>
+              <td>
+                <% if (doc.schedules.length === 0) { %>
+                  <span style="color: var(--color-text-muted); font-size: 0.85rem;">Belum ada jadwal</span>
+                <% } else { %>
+                  <% doc.schedules.forEach(s => { %>
+                    <span class="badge badge-dikonfirmasi" style="margin-right:4px;"><%= s.dayOfWeek %> <%= s.startTime %>-<%= s.endTime %></span>
+                  <% }) %>
+                <% } %>
+              </td>
+              <td>
+                <button class="btn btn-outline btn-sm" onclick="openJadwalModal(<%= doc.id %>)">+ Jadwal</button>
+                <button class="btn btn-danger btn-sm" onclick="hapusDokter(<%= doc.id %>)">Hapus</button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<!-- MODAL: Tambah Dokter -->
+<div id="modalTambahDokter" class="modal-overlay">
+  <div class="modal-box">
+    <h3 style="margin-bottom: 18px;">Tambah Dokter Baru</h3>
+    <form id="formTambahDokter">
+      <div class="form-group">
+        <label class="form-label">Nama Dokter</label>
+        <input type="text" name="username" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password Awal</label>
+        <input type="password" name="password" class="form-input" minlength="6" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Spesialisasi</label>
+        <input type="text" name="specialist" class="form-input" placeholder="cth: Dokter Umum, Spesialis Jantung" required>
+      </div>
+      <div style="display:flex; gap: 10px; margin-top: 6px;">
+        <button type="button" class="btn btn-outline btn-block" onclick="document.getElementById('modalTambahDokter').style.display='none'">Batal</button>
+        <button type="submit" class="btn btn-primary btn-block">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: Tambah Jadwal -->
+<div id="modalJadwal" class="modal-overlay">
+  <div class="modal-box">
+    <h3 style="margin-bottom: 18px;">Tambah Jadwal Praktik</h3>
+    <form id="formJadwal">
+      <input type="hidden" name="doctorId" id="jadwalDoctorId">
+      <div class="form-group">
+        <label class="form-label">Hari</label>
+        <select name="dayOfWeek" class="form-select" required>
+          <option value="Senin">Senin</option>
+          <option value="Selasa">Selasa</option>
+          <option value="Rabu">Rabu</option>
+          <option value="Kamis">Kamis</option>
+          <option value="Jumat">Jumat</option>
+          <option value="Sabtu">Sabtu</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jam Mulai</label>
+        <input type="time" name="startTime" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Jam Selesai</label>
+        <input type="time" name="endTime" class="form-input" required>
+      </div>
+      <div style="display:flex; gap: 10px; margin-top: 6px;">
+        <button type="button" class="btn btn-outline btn-block" onclick="document.getElementById('modalJadwal').style.display='none'">Batal</button>
+        <button type="submit" class="btn btn-primary btn-block">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+.modal-overlay {
+  display: none;
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(15,76,76,0.45);
+  align-items: center; justify-content: center;
+  z-index: 100;
+}
+.modal-box {
+  background: white; border-radius: var(--radius-md);
+  padding: 28px; width: 100%; max-width: 420px;
+}
+</style>
+
+<script>
+document.getElementById('formTambahDokter').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const res = await fetch('/api/doctors', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const result = await res.json();
+  if (res.ok) {
+    alert('Dokter berhasil ditambahkan!');
+    location.reload();
+  } else {
+    alert(result.message || 'Gagal menambahkan dokter.');
+  }
+});
+
+function openJadwalModal(doctorId) {
+  document.getElementById('jadwalDoctorId').value = doctorId;
+  document.getElementById('modalJadwal').style.display = 'flex';
+}
+
+document.getElementById('formJadwal').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  const doctorId = data.doctorId;
+  delete data.doctorId;
+  const res = await fetch(`/api/doctors/${doctorId}/schedules`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (res.ok) {
+    alert('Jadwal berhasil ditambahkan!');
+    location.reload();
+  } else {
+    const result = await res.json();
+    alert(result.message || 'Gagal menambahkan jadwal.');
+  }
+});
+
+async function hapusDokter(id) {
+  if (!confirm('Yakin ingin menghapus dokter ini? Semua data jadwal terkait juga akan terhapus.')) return;
+  const res = await fetch(`/api/doctors/${id}`, { method: 'DELETE' });
+  if (res.ok) {
+    alert('Dokter berhasil dihapus.');
+    location.reload();
+  } else {
+    const result = await res.json();
+    alert(result.message || 'Gagal menghapus dokter.');
+  }
+}
+</script>

@@ -1,0 +1,35 @@
+Nama Tim: ByteMe
+
+Anggota:
+1. Eka Anastsya Situmorang - 241112564
+
+Teknologi:
+- Node.js + Express.js 4
+- Prisma ORM + MySQL
+- EJS (server-side rendering) + CSS custom (tanpa framework CSS pihak ketiga)
+- JWT (jsonwebtoken) untuk autentikasi
+- bcryptjs untuk hashing password
+- PDFKit untuk export rekam medis ke PDF (dipelajari secara mandiri)
+- Chart.js untuk visualisasi dashboard statistik (dipelajari secara mandiri)
+- method-override, cookie-parser, express-ejs-layouts untuk struktur web server
+
+Link Template:
+(Tidak menggunakan template pihak ketiga — desain UI dan sistem warna dibuat custom)
+
+Inovasi & Kreativitas:
+- Sistem reservasi & rekam medis klinik dengan 3 role (Admin, Dokter, Pasien), masing-masing
+  punya dashboard dan alur kerja berbeda.
+- Validasi anti-bentrok jadwal appointment (sistem otomatis menolak booking pada slot yang
+  sudah terisi untuk dokter yang sama).
+- Rekomendasi dokter spesialis otomatis berdasarkan kata kunci diagnosis yang diinput dokter.
+- Resep obat digital (e-Prescription) yang terhubung ke rekam medis.
+- Export rekam medis pasien ke PDF yang bisa diunduh kapan saja.
+- Dashboard statistik admin dengan 4 jenis grafik (Chart.js): tren appointment per bulan,
+  distribusi status appointment, dokter paling sering dipilih, dan diagnosis terbanyak.
+- Sistem rating & ulasan dokter oleh pasien, hanya bisa diberikan setelah appointment selesai.
+- Desain UI custom dengan sistem warna teal-amber yang konsisten di semua halaman dan role
+  (bukan tampilan default framework).
+
+Link Hostingan: (isi setelah deploy)
+Username Admin: admin@smarthealth.com
+Password Admin: admin123

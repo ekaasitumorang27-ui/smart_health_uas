@@ -1,0 +1,90 @@
+<div class="grid-row grid-3">
+  <div class="stat-card">
+    <span class="stat-card-label">Total Pasien</span>
+    <span class="stat-card-value"><%= totalUsers %></span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-card-label">Total Dokter</span>
+    <span class="stat-card-value"><%= totalDoctors %></span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-card-label">Total Appointment</span>
+    <span class="stat-card-value"><%= totalAppointments %></span>
+  </div>
+</div>
+
+<div class="grid-row grid-2">
+  <div class="card">
+    <div class="card-header"><h3>Appointment per Bulan</h3></div>
+    <canvas id="chartPerBulan" height="220"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Distribusi Status Appointment</h3></div>
+    <canvas id="chartStatus" height="220"></canvas>
+  </div>
+</div>
+
+<div class="grid-row grid-2">
+  <div class="card">
+    <div class="card-header"><h3>Dokter Paling Sering Dipilih</h3></div>
+    <canvas id="chartTopDoctors" height="220"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3>Diagnosis Terbanyak</h3></div>
+    <canvas id="chartTopDiagnosis" height="220"></canvas>
+  </div>
+</div>
+
+<script src="/js/chart.umd.min.js"></script>
+<script>
+async function loadDashboardCharts() {
+  const res = await fetch('/api/dashboard/stats');
+  const stats = await res.json();
+
+  const palette = ['#0F4C4C', '#1A7A6E', '#E8B84B', '#C24A3D', '#6B7472'];
+
+  new Chart(document.getElementById('chartPerBulan'), {
+    type: 'line',
+    data: {
+      labels: Object.keys(stats.perBulan),
+      datasets: [{
+        label: 'Jumlah Appointment',
+        data: Object.values(stats.perBulan),
+        borderColor: '#0F4C4C',
+        backgroundColor: 'rgba(15,76,76,0.08)',
+        fill: true,
+        tension: 0.35
+      }]
+    },
+    options: { plugins: { legend: { display: false } } }
+  });
+
+  new Chart(document.getElementById('chartStatus'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(stats.statusCount),
+      datasets: [{ data: Object.values(stats.statusCount), backgroundColor: palette }]
+    }
+  });
+
+  new Chart(document.getElementById('chartTopDoctors'), {
+    type: 'bar',
+    data: {
+      labels: stats.topDoctors.map(d => d.nama),
+      datasets: [{ label: 'Jumlah Appointment', data: stats.topDoctors.map(d => d.jumlah), backgroundColor: '#1A7A6E' }]
+    },
+    options: { plugins: { legend: { display: false } }, indexAxis: 'y' }
+  });
+
+  new Chart(document.getElementById('chartTopDiagnosis'), {
+    type: 'bar',
+    data: {
+      labels: stats.topDiagnosis.map(d => d.diagnosis),
+      datasets: [{ label: 'Jumlah Kasus', data: stats.topDiagnosis.map(d => d.jumlah), backgroundColor: '#E8B84B' }]
+    },
+    options: { plugins: { legend: { display: false } }, indexAxis: 'y' }
+  });
+}
+
+loadDashboardCharts();
+</script>

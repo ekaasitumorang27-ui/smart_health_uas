@@ -1,0 +1,50 @@
+<nav class="app-sidebar">
+  <div class="app-sidebar-brand">
+    <span class="app-sidebar-brand-icon">&#10010;</span>
+    <span class="app-sidebar-brand-text">Smart<strong>Health</strong></span>
+  </div>
+
+  <div class="app-sidebar-links">
+    <% if (currentUser.role === 'ADMIN') { %>
+      <a href="/admin/dashboard" class="app-sidebar-link <%= activePage === 'dashboard' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#9635;</span> Dashboard
+      </a>
+      <a href="/admin/dokter" class="app-sidebar-link <%= activePage === 'dokter' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#9879;</span> Manajemen Dokter
+      </a>
+      <a href="/admin/appointments" class="app-sidebar-link <%= activePage === 'appointments' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#128197;</span> Semua Appointment
+      </a>
+      <a href="/admin/pasien" class="app-sidebar-link <%= activePage === 'pasien' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#128100;</span> Daftar Pasien
+      </a>
+    <% } else if (currentUser.role === 'DOKTER') { %>
+      <a href="/dokter/dashboard" class="app-sidebar-link <%= activePage === 'dashboard' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#9635;</span> Dashboard
+      </a>
+      <a href="/dokter/jadwal" class="app-sidebar-link <%= activePage === 'jadwal' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#128337;</span> Jadwal Praktik
+      </a>
+      <a href="/dokter/riwayat" class="app-sidebar-link <%= activePage === 'riwayat' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#128203;</span> Riwayat Rekam Medis
+      </a>
+    <% } else { %>
+      <a href="/pasien/dashboard" class="app-sidebar-link <%= activePage === 'dashboard' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#9635;</span> Dashboard
+      </a>
+      <a href="/pasien/booking" class="app-sidebar-link <%= activePage === 'booking' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#128197;</span> Buat Appointment
+      </a>
+      <a href="/pasien/riwayat-appointment" class="app-sidebar-link <%= activePage === 'riwayat-appointment' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#128338;</span> Riwayat Appointment
+      </a>
+      <a href="/pasien/rekam-medis" class="app-sidebar-link <%= activePage === 'rekam-medis' ? 'is-active' : '' %>">
+        <span class="app-sidebar-link-icon">&#128203;</span> Rekam Medis
+      </a>
+    <% } %>
+  </div>
+
+  <a href="/auth/logout" class="app-sidebar-logout">
+    <span class="app-sidebar-link-icon">&#8674;</span> Keluar
+  </a>
+</nav>
